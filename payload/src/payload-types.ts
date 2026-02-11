@@ -68,6 +68,8 @@ export interface Config {
   blocks: {};
   collections: {
     users: User;
+    vendors: Vendor;
+    'vendor-subscriptions': VendorSubscription;
     media: Media;
     'payload-kv': PayloadKv;
     'payload-locked-documents': PayloadLockedDocument;
@@ -77,6 +79,8 @@ export interface Config {
   collectionsJoins: {};
   collectionsSelect: {
     users: UsersSelect<false> | UsersSelect<true>;
+    vendors: VendorsSelect<false> | VendorsSelect<true>;
+    'vendor-subscriptions': VendorSubscriptionsSelect<false> | VendorSubscriptionsSelect<true>;
     media: MediaSelect<false> | MediaSelect<true>;
     'payload-kv': PayloadKvSelect<false> | PayloadKvSelect<true>;
     'payload-locked-documents': PayloadLockedDocumentsSelect<false> | PayloadLockedDocumentsSelect<true>;
@@ -120,6 +124,9 @@ export interface UserAuthOperations {
  */
 export interface User {
   id: number;
+  role: 'admin' | 'vendor' | 'client';
+  vendor?: (number | null) | Vendor;
+  subscribedVendors?: (number | Vendor)[] | null;
   updatedAt: string;
   createdAt: string;
   email: string;
@@ -141,11 +148,30 @@ export interface User {
 }
 /**
  * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "vendors".
+ */
+export interface Vendor {
+  id: number;
+  name: string;
+  slug: string;
+  logo?: (number | null) | Media;
+  updatedAt: string;
+  createdAt: string;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
  * via the `definition` "media".
  */
 export interface Media {
   id: number;
-  alt: string;
+  title: string;
+  vendor: number | Vendor;
+  accessLevel?: ('public' | 'subscriber' | 'exclusive' | 'private') | null;
+  allowedClients?: (number | User)[] | null;
+  tags?: string[] | null;
+  usageRights?: string | null;
+  expirationDate?: string | null;
+  downloadable?: boolean | null;
   updatedAt: string;
   createdAt: string;
   url?: string | null;
@@ -157,6 +183,20 @@ export interface Media {
   height?: number | null;
   focalX?: number | null;
   focalY?: number | null;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "vendor-subscriptions".
+ */
+export interface VendorSubscription {
+  id: number;
+  vendor: number | Vendor;
+  client: number | User;
+  status?: ('active' | 'paused' | 'expired') | null;
+  tier?: ('basic' | 'premium') | null;
+  expiresAt?: string | null;
+  updatedAt: string;
+  createdAt: string;
 }
 /**
  * This interface was referenced by `Config`'s JSON-Schema
@@ -185,6 +225,14 @@ export interface PayloadLockedDocument {
     | ({
         relationTo: 'users';
         value: number | User;
+      } | null)
+    | ({
+        relationTo: 'vendors';
+        value: number | Vendor;
+      } | null)
+    | ({
+        relationTo: 'vendor-subscriptions';
+        value: number | VendorSubscription;
       } | null)
     | ({
         relationTo: 'media';
@@ -237,6 +285,9 @@ export interface PayloadMigration {
  * via the `definition` "users_select".
  */
 export interface UsersSelect<T extends boolean = true> {
+  role?: T;
+  vendor?: T;
+  subscribedVendors?: T;
   updatedAt?: T;
   createdAt?: T;
   email?: T;
@@ -256,10 +307,41 @@ export interface UsersSelect<T extends boolean = true> {
 }
 /**
  * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "vendors_select".
+ */
+export interface VendorsSelect<T extends boolean = true> {
+  name?: T;
+  slug?: T;
+  logo?: T;
+  updatedAt?: T;
+  createdAt?: T;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "vendor-subscriptions_select".
+ */
+export interface VendorSubscriptionsSelect<T extends boolean = true> {
+  vendor?: T;
+  client?: T;
+  status?: T;
+  tier?: T;
+  expiresAt?: T;
+  updatedAt?: T;
+  createdAt?: T;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
  * via the `definition` "media_select".
  */
 export interface MediaSelect<T extends boolean = true> {
-  alt?: T;
+  title?: T;
+  vendor?: T;
+  accessLevel?: T;
+  allowedClients?: T;
+  tags?: T;
+  usageRights?: T;
+  expirationDate?: T;
+  downloadable?: T;
   updatedAt?: T;
   createdAt?: T;
   url?: T;
