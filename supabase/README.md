@@ -47,6 +47,7 @@ To update your self-hosted Supabase instance:
 4. Pull the latest images: `docker compose pull`
 5. Stop services: `docker compose down`
 6. Start services with new configuration: `docker compose up -d`
+7. For S3: `docker compose -f docker-compose.yml -f docker-compose.s3.yml up -d`
 
 **Note:** Consider to always backup your database before updating.
 

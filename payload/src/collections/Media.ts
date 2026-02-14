@@ -1,7 +1,5 @@
 // collections/Media.ts
-import { eq } from '@payloadcms/db-postgres/drizzle'
 import { CollectionConfig } from 'payload'
-import { supabase } from '../lib/supabase'
 
 export const Media: CollectionConfig = {
   slug: 'media',
@@ -14,7 +12,7 @@ export const Media: CollectionConfig = {
   access: {
     read: ({ req }) => {
       const user = req.user
-      
+
       // Admin can read all media
       if (user?.role === 'admin') return true
 
@@ -46,8 +44,8 @@ export const Media: CollectionConfig = {
       if (user?.id) {
         or.push({
           and: [
-            {accessLevel: { equals: 'exclusive' }},
-            {allowedClients: { contains: user.id }},
+            { accessLevel: { equals: 'exclusive' } },
+            { allowedClients: { contains: user.id } },
           ],
         })
       }
@@ -114,32 +112,8 @@ export const Media: CollectionConfig = {
     },
   ],
   hooks: {
-  beforeChange: [
-    async ({ data, req, operation }) => {
-      if (operation !== 'create') return data
-      if (!req.file) return data
-
-      const { vendor, accessLevel } = data
-      const file = req.file
-
-      const path = `vendors/${vendor}/${accessLevel}/${file.name}`
-
-      const { error } = await supabase.storage
-        .from('digital-asset-manager') // bucket name
-        .upload(path, file.data, {
-          contentType: file.mimetype,
-          upsert: false,
-        })
-
-      if (error) {
-        throw new Error(`Supabase upload failed: ${error.message}`)
-      }
-
-      data.storagePath = path
-
-      return data
-    },
-  ],
-}
+    beforeChange: [],
+    afterChange: [],
+  }
 }
 

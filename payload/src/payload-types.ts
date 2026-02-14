@@ -173,6 +173,7 @@ export interface Media {
   expirationDate?: string | null;
   downloadable?: boolean | null;
   storagePath?: string | null;
+  prefix?: string | null;
   updatedAt: string;
   createdAt: string;
   url?: string | null;
@@ -344,6 +345,7 @@ export interface MediaSelect<T extends boolean = true> {
   expirationDate?: T;
   downloadable?: T;
   storagePath?: T;
+  prefix?: T;
   updatedAt?: T;
   createdAt?: T;
   url?: T;
